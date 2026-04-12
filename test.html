@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vocacional | Responder preguntas</title>
+    <style>
+        /* ====== Mismos estilos que antes, pero añadimos navbar ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        /* Navbar compartida */
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 60px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #1e2a3e, #2c3e66);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #2c3e66;
+            margin-left: 1.2rem;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .questions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .img-placeholder {
+            width: 100%;
+            height: 200px;
+            background-color: #cbd5e1;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .question-content {
+            padding: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .opt-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 0.7rem 1.3rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1 0 auto;
+        }
+
+        .opt-btn.selected {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-submit {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 60px;
+            cursor: pointer;
+            display: block;
+            margin: 1rem auto;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.8rem;
+            margin-top: 2rem;
+            display: none;
+            border-top: 6px solid #3b82f6;
+        }
+
+        .reset-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+        }
+        @media (max-width: 700px) {
+            .navbar { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <div class="logo">🎓 Test Vocacional</div>
+        <div class="nav-links">
+            <a href="index.html">← Inicio</a>
+            <a href="test.html">Test</a>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="questions-grid" id="questionsContainer"></div>
+        <button class="btn-submit" id="submitTest">📊 Ver mi resultado</button>
+        <div id="resultContainer" class="result-card"></div>
+    </div>
+    <footer>🔁 Test independiente · Puedes cambiar las imágenes editando el array questionsData</footer>
+</div>
+
+<script>
+    // ========= MISMO ARRAY DE PREGUNTAS QUE ANTES (PERSONALIZABLE) =========
+    const questionsData = [
+        {
+            id: 1,
+            text: "¿Cómo te ves resolviendo problemas técnicos o construyendo objetos?",
+            img: "https://picsum.photos/id/0/800/400",
+            options: [
+                { text: "Me encanta armar y desarmar cosas", careerWeight: { ingenieria: 3, tecnologia: 3, arte: 0 } },
+                { text: "Prefiero analizar datos y encontrar fallos", careerWeight: { tecnologia: 2, ingenieria: 2, salud: 1 } },
+                { text: "Disfruto diseñando o creando visualmente", careerWeight: { arte: 3, comunicacion: 2 } }
+            ]
+        },
+        {
+            id: 2,
+            text: "¿Qué tipo de actividades te llaman más la atención?",
+            img: "https://picsum.photos/id/20/800/400",
+            options: [
+                { text: "Ayudar a personas, escuchar y aconsejar", careerWeight: { salud: 3, social: 3, educacion: 2 } },
+                { text: "Investigar, experimentar en laboratorio o campo", careerWeight: { ciencia: 3, salud: 2, ingenieria: 1 } },
+                { text: "Liderar equipos, negociar o vender", careerWeight: { negocios: 3, comunicacion: 2, derecho: 1 } }
+            ]
+        },
+        {
+            id: 3,
+            text: "Elige el ambiente que más te motive:",
+            img: "https://picsum.photos/id/26/800/400",
+            options: [
+                { text: "Oficina creativa, diseño, medios", careerWeight: { arte: 3, comunicacion: 3, tecnologia: 1 } },
+                { text: "Hospital, clínica o deporte", careerWeight: { salud: 3, deporte: 2, social: 2 } },
+                { text: "Laboratorio, biblioteca o data center", careerWeight: { ciencia: 3, tecnologia: 2, ingenieria: 2 } }
+            ]
+        },
+        {
+            id: 4,
+            text: "¿Qué materia se te daba mejor en el colegio?",
+            img: "https://picsum.photos/id/15/800/400",
+            options: [
+                { text: "Matemáticas y física", careerWeight: { ingenieria: 3, tecnologia: 3, ciencia: 2 } },
+                { text: "Letras, historia o arte", careerWeight: { arte: 3, comunicacion: 2, derecho: 2, educacion: 1 } },
+                { text: "Biología o química", careerWeight: { salud: 3, ciencia: 3, medioambiente: 2 } }
+            ]
+        },
+        {
+            id: 5,
+            text: "¿Qué valoras más en un trabajo futuro?",
+            img: "https://picsum.photos/id/42/800/400",
+            options: [
+                { text: "Impacto social, ayudar a comunidades", careerWeight: { social: 3, educacion: 3, salud: 2 } },
+                { text: "Independencia, crear mi propio proyecto", careerWeight: { negocios: 3, arte: 2, tecnologia: 2 } },
+                { text: "Estabilidad, trabajo en equipo estructurado", careerWeight: { ingenieria: 2, derecho: 2, salud: 2, administracion: 3 } }
+            ]
+        }
+    ];
+
+    const careerNames = {
+        ingenieria: "🔧 Ingeniería / Tecnología industrial",
+        tecnologia: "💻 Desarrollo de software / TI",
+        arte: "🎨 Diseño, Artes visuales o Creatividad",
+        salud: "🩺 Ciencias de la Salud",
+        social: "🤝 Trabajo social / Psicología",
+        educacion: "📚 Educación / Pedagogía",
+        ciencia: "🔬 Ciencia e investigación",
+        negocios: "📊 Negocios / Marketing",
+        comunicacion: "📢 Comunicación / Periodismo",
+        derecho: "⚖️ Derecho",
+        deporte: "🏅 Deporte",
+        medioambiente: "🌱 Medio ambiente",
+        administracion: "📑 Administración"
+    };
+
+    let userAnswers = {};
+
+    function renderQuestions() {
+        const container = document.getElementById('questionsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        questionsData.forEach(q => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'img-placeholder';
+            imgDiv.style.backgroundImage = `url('${q.img}')`;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'question-content';
+            const questionTitle = document.createElement('div');
+            questionTitle.className = 'question-text';
+            questionTitle.innerText = `${q.id}. ${q.text}`;
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = opt.text;
+                btn.dataset.qid = q.id;
+                btn.dataset.optIndex = idx;
+                if (userAnswers[q.id] === idx) btn.classList.add('selected');
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll(`.opt-btn[data-qid='${q.id}']`).forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    userAnswers[q.id] = idx;
+                });
+                optionsDiv.appendChild(btn);
+            });
+            contentDiv.appendChild(questionTitle);
+            contentDiv.appendChild(optionsDiv);
+            card.appendChild(imgDiv);
+            card.appendChild(contentDiv);
+            container.appendChild(card);
+        });
+    }
+
+    function computeResults() {
+        const totalScores = {};
+        Object.keys(careerNames).forEach(c => totalScores[c] = 0);
+        for (let qid in userAnswers) {
+            const question = questionsData.find(q => q.id == qid);
+            if (!question) continue;
+            const opt = question.options[userAnswers[qid]];
+            if (opt && opt.careerWeight) {
+                for (let career in opt.careerWeight) {
+                    if (totalScores[career] !== undefined) totalScores[career] += opt.careerWeight[career];
+                }
+            }
+        }
+        return Object.entries(totalScores).sort((a,b) => b[1] - a[1]);
+    }
+
+    function showResult() {
+        if (Object.keys(userAnswers).length < questionsData.length) {
+            alert(`Responde todas las ${questionsData.length} preguntas.`);
+            return;
+        }
+        const results = computeResults();
+        const container = document.getElementById('resultContainer');
+        let html = `<h3>🎯 Tu orientación vocacional</h3><div><ol>`;
+        for (let i=0; i<Math.min(results.length,5); i++) {
+            html += `<li><strong>${careerNames[results[i][0]]}</strong> — puntaje ${results[i][1]}</li>`;
+        }
+        html += `</ol><p style="margin-top:1rem;">🔍 Este test es libre y sin convenios. Explora carreras que te apasionen.</p>
+                 <button class="reset-btn" id="resetTestBtn">🔄 Hacer de nuevo</button></div>`;
+        container.innerHTML = html;
+        container.style.display = 'block';
+        document.getElementById('resetTestBtn')?.addEventListener('click', () => {
+            userAnswers = {};
+            renderQuestions();
+            container.style.display = 'none';
+        });
+    }
+
+    renderQuestions();
+    document.getElementById('submitTest').addEventListener('click', showResult);
+</script>
+</body>
+</html>
